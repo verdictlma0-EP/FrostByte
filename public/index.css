@@ -1,0 +1,92 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "JetBrains Mono", monospace;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(to bottom right, #f6fbff, #eaf6ff);
+    display: flex;
+    flex-direction: column;
+}
+
+/* TOP BAR */
+.topbar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border-bottom: 1px solid #d7e9f5;
+    gap: 10px;
+}
+
+/* NAV */
+.nav button,
+.tab-controls button {
+    border: none;
+    background: #eaf6ff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.nav button:hover,
+.tab-controls button:hover {
+    background: #dff2ff;
+}
+
+/* TABS */
+.tabs {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    overflow-x: auto;
+}
+
+.tab {
+    padding: 6px 10px;
+    background: #eef7ff;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    user-select: none;
+}
+
+.tab.active {
+    background: #cfeaff;
+}
+
+/* CENTER */
+.center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    font-family: "Handjet", cursive;
+    font-size: 5rem;
+    color: #8fd3ff;
+    margin-bottom: 25px;
+    text-shadow: 0 0 12px rgba(150,210,255,0.4);
+}
+
+#search {
+    width: 55%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #cfe3f3;
+    outline: none;
+    font-size: 14px;
+    background: white;
+}
+
+#search:focus {
+    border-color: #8fd3ff;
+    box-shadow: 0 0 12px rgba(140,200,255,0.35);
+}
