@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frostbyte</title>
 
+<link rel="stylesheet" href="index.css">
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Mono:wght@400;700&family=Handjet:wght@500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="topbar">
+
+    <div class="nav">
+        <button onclick="back()">←</button>
+        <button onclick="forward()">→</button>
+        <button onclick="reload()">⟳</button>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="tab-controls">
+        <button onclick="newTab()">＋</button>
+    </div>
+
+</div>
+
+<div class="center">
+
+    <h1 class="logo">Frostbyte</h1>
+
+    <input id="search" placeholder="Search or enter URL..." />
+
+</div>
+
+<script src="index.js"></script>
+
+</body>
+</html>
