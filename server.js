@@ -17,9 +17,7 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 const BACKEND_URL = (process.env.BACKEND_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
 
-/* -------------------- PERFORMANCE CORE -------------------- */
 
-// Keep-alive agents (major speed boost)
 const agentOptions = {
   keepAlive: true,
   maxSockets: 100,
@@ -29,11 +27,9 @@ const agentOptions = {
 const httpAgent = new http.Agent(agentOptions);
 const httpsAgent = new https.Agent(agentOptions);
 
-// simple in-memory cache
 const cache = new Map();
 const CACHE_TTL = 1000 * 30;
 
-/* -------------------- MIDDLEWARE -------------------- */
 
 app.use(compression());
 
@@ -53,7 +49,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* -------------------- BASIC ROUTES -------------------- */
 
 app.get('/health', (_req, res) => {
   res.json({
@@ -63,7 +58,6 @@ app.get('/health', (_req, res) => {
   });
 });
 
-/* -------------------- CACHE HELPERS -------------------- */
 
 function getCache(key) {
   const hit = cache.get(key);
@@ -79,7 +73,6 @@ function setCache(key, data) {
   cache.set(key, { time: Date.now(), data });
 }
 
-/* -------------------- FETCH PROXY (FAST MODE) -------------------- */
 
 const REWRITE_LIMIT = 15 * 1024 * 1024;
 
@@ -125,14 +118,12 @@ app.get('/fetch', async (req, res) => {
     const isCss  = contentType.includes('text/css');
     const isJs   = contentType.includes('javascript');
 
-    // 🚀 FAST PATH: no rewrite needed
     if (!isHtml && !isCss && !isJs) {
       res.setHeader('Access-Control-Allow-Origin', '*');
       upstream.data.pipe(res);
       return;
     }
 
-    // 🚀 STREAM BUFFER (only for rewrite cases)
     const chunks = [];
     let size = 0;
 
@@ -179,7 +170,7 @@ app.get('/fetch', async (req, res) => {
   }
 });
 
-/* -------------------- WISP (WebSocket proxy) -------------------- */
+/* -wisp thing yay! */
 
 const server = http.createServer(app);
 
@@ -191,13 +182,11 @@ server.on('upgrade', (req, socket, head) => {
   }
 });
 
-/* -------------------- STATIC ENGINE -------------------- */
 
 app.use('/scramjet', express.static(path.join(__dirname, 'public/scramjet')));
 app.use('/uv', express.static(path.join(__dirname, 'public/uv')));
 app.use('/aero', express.static(path.join(__dirname, 'public/aero')));
 
-/* -------------------- START -------------------- */
 
 server.listen(PORT, () => {
   console.log(`[Frostbyte Turbo] running on :${PORT}`);
