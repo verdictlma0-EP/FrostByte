@@ -9,13 +9,13 @@ services:
       - key: PORT
         value: 3000
       - key: BACKEND_URL
-        sync: false   # Set to your Render URL e.g. https://test-ujjc.onrender.com
+        sync: false  
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
       - key: FIREBASE_PRIVATE_KEY
-        sync: false   # Paste the full private key including -----BEGIN/END----- lines
+        sync: false  
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
@@ -25,4 +25,4 @@ services:
       - key: CLOUDINARY_FOLDER
         value: scramfck
       - key: OWNER_EMAILS
-        sync: false   # Comma-separated admin emails
+        sync: false   
