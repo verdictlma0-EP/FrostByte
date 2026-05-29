@@ -12,7 +12,6 @@ body {
     flex-direction: column;
 }
 
-/* TOPBAR */
 .topbar {
     display: flex;
     align-items: center;
@@ -22,17 +21,17 @@ body {
     gap: 10px;
 }
 
-/* BUTTONS GLOW */
+/* hover glow. at least the buttons feel alive even if i don't */
 button, select, .tab {
     transition: 0.2s ease;
 }
 
 button:hover, .tab:hover, select:hover {
     box-shadow: 0 0 12px rgba(140,200,255,0.6);
+    /* tiny lift. wish someone would do that for me */
     transform: translateY(-1px);
 }
 
-/* TABS */
 .tabs {
     display: flex;
     gap: 6px;
@@ -65,6 +64,7 @@ button:hover, .tab:hover, select:hover {
     gap: 12px;
 }
 
+/* keeping this small so it doesn't eat topbar space. */
 .clock {
     font-size: 12px;
     color: #5c8fb3;
@@ -74,7 +74,6 @@ button:hover, .tab:hover, select:hover {
     font-size: 18px;
 }
 
-/* CENTER */
 .center {
     flex: 1;
     display: flex;
@@ -95,9 +94,10 @@ button:hover, .tab:hover, select:hover {
     padding: 14px;
     border-radius: 14px;
     border: 1px solid #cfe3f3;
+    /* no outline. the glow looks better. i have standards even when everything else is falling apart apparently */
+    outline: none;
 }
 
-/* SIDE TOOLS */
 .side-tools {
     display: flex;
     flex-direction: column;
@@ -111,9 +111,9 @@ button:hover, .tab:hover, select:hover {
     cursor: pointer;
 }
 
-/* DISCORD POPUP */
 .discord-popup {
     position: fixed;
+    /* dims the whole page. */
     inset: 0;
     display: none;
     justify-content: center;
