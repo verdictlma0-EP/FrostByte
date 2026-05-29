@@ -71,7 +71,7 @@ html, body {
     linear-gradient(180deg, #0a0a1a 0%, #1a1a3e 50%, #0d1b2a 100%);
 }
 
-/* === EAster egg here yay A is capital becaue I am on a phone === */
+    /*EAster egg here yay A is capital becaue I am on a phone*/
 .doge-float {
   position: fixed;
   font-family: 'Comic Neue', cursive;
@@ -189,6 +189,7 @@ html, body {
   margin: 0 4px;
 }
 
+/* I swear this is gonna flash white at 2am and blind me */
 .boot-screen {
   position: fixed;
   inset: 0;
@@ -319,6 +320,7 @@ html, body {
   background: white;
 }
 
+/* === AUTH MODAL === */
 .auth-overlay {
   position: fixed;
   inset: 0;
@@ -423,6 +425,7 @@ html, body {
 
 .yt-btn:hover { background: rgba(255,255,255,0.14); }
 
+/* honestly this panel is gonna keep growing every update we code xd*/
 .settings-grid {
   display: grid;
   grid-template-columns: 140px 1fr;
