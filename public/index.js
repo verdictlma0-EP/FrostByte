@@ -4,6 +4,7 @@ let activeTab = null;
 function newTab() {
   const id = Date.now().toString();
 
+  // each tab gets its own iframe. they deserve their own space. unlike me apparently
   const frame = document.createElement('iframe');
   frame.style.cssText = 'position:fixed;top:50px;left:0;width:100%;height:calc(100% - 50px);border:none;display:none';
 
@@ -20,6 +21,7 @@ function newTab() {
 
 function renderTabs() {
   const el = document.getElementById("tabs");
+  // rebuild every time. gave up trying to reuse code.
   el.innerHTML = `<button class="tab-add" onclick="newTab()">＋</button>`;
 
   tabs.forEach(t => {
@@ -44,6 +46,7 @@ function closeTab(id) {
   tabs = tabs.filter(x => x.id !== id);
 
   if (activeTab === id && tabs.length) {
+    // just fall back to the first tab. whatever
     activeTab = tabs[0].id;
     showTab(tabs[0]);
   }
@@ -70,6 +73,7 @@ function showTab(tab) {
 
 function back() {
   const t = tabs.find(x => x.id === activeTab);
+  // SecurityError from cross-origin. can't do anything about it. just pretend it didn't happen
   try { t.frame.contentWindow.history.back(); } catch {}
 }
 
@@ -83,15 +87,14 @@ function reload() {
   try { t.frame.contentWindow.location.reload(); } catch {}
 }
 
-/* CLOCK */
 function updateClock() {
   const now = new Date();
+  // at least the clock works. something has to
   document.getElementById("clock").textContent =
     now.toLocaleTimeString() + " " + now.toLocaleDateString();
 }
 setInterval(updateClock, 1000);
 
-/* DISCORD */
 function openDiscordPopup() {
   document.getElementById("discord").style.display = "flex";
 }
