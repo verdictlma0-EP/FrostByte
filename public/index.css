@@ -12,7 +12,6 @@ body {
     flex-direction: column;
 }
 
-/* TOP BAR */
 .topbar {
     display: flex;
     align-items: center;
@@ -22,7 +21,6 @@ body {
     gap: 10px;
 }
 
-/* NAV */
 .nav button,
 .tab-controls button {
     border: none;
@@ -37,7 +35,6 @@ body {
     background: #dff2ff;
 }
 
-/* TABS */
 .tabs {
     display: flex;
     gap: 6px;
@@ -59,7 +56,6 @@ body {
     background: #cfeaff;
 }
 
-/* CENTER */
 .center {
     flex: 1;
     display: flex;
@@ -89,4 +85,53 @@ body {
 #search:focus {
     border-color: #8fd3ff;
     box-shadow: 0 0 12px rgba(140,200,255,0.35);
+}
+
+.engine-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.engine-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #7aa8c4;
+    user-select: none;
+}
+
+.engine-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #8fd3ff;
+    display: inline-block;
+    transition: background 0.3s;
+    box-shadow: 0 0 6px rgba(140,200,255,0.5);
+}
+
+#engine-select {
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid #cfe3f3;
+    background: white;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: #4a7a9a;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#engine-select:focus,
+#engine-select:hover {
+    border-color: #8fd3ff;
+    box-shadow: 0 0 8px rgba(140,200,255,0.3);
+}
+
+#engine-select option:disabled {
+    color: #bbb;
 }
