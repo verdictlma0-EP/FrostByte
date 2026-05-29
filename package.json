@@ -1,7 +1,7 @@
 {
-  "name": "ep-proxy-backend",
+  "name": "Frostbyte doge thing",
   "version": "7.0.0",
-  "description": "EP Proxy backend v7 — full HTML/CSS/JS rewriting + Wisp WS + UV assets + Firebase + Cloudinary",
+  "description": "A ton of shit",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
