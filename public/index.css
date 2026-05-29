@@ -22,18 +22,14 @@ body {
     gap: 10px;
 }
 
-.nav button,
-.tab-add {
-    border: none;
-    background: #eaf6ff;
-    padding: 8px 10px;
-    border-radius: 8px;
-    cursor: pointer;
+/* BUTTONS GLOW */
+button, select, .tab {
+    transition: 0.2s ease;
 }
 
-.nav button:hover,
-.tab-add:hover {
-    background: #dff2ff;
+button:hover, .tab:hover, select:hover {
+    box-shadow: 0 0 12px rgba(140,200,255,0.6);
+    transform: translateY(-1px);
 }
 
 /* TABS */
@@ -43,7 +39,6 @@ body {
     flex: 1;
     overflow-x: auto;
     align-items: center;
-    scroll-behavior: smooth;
 }
 
 .tab {
@@ -51,47 +46,32 @@ body {
     background: #eef7ff;
     border-radius: 8px;
     cursor: pointer;
-    white-space: nowrap;
-    font-size: 13px;
-    user-select: none;
     display: flex;
-    align-items: center;
     gap: 6px;
-
-    transition: transform 0.18s ease, background 0.2s ease, opacity 0.2s ease;
 }
 
 .tab.active {
     background: #cfeaff;
 }
 
-/* drag states */
-.tab.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-}
-
-.tab.drag-over {
-    transform: translateX(6px);
-}
-
-/* close button */
 .tab-close {
-    font-size: 14px;
     cursor: pointer;
-    opacity: 0.6;
 }
 
-.tab-close:hover {
-    opacity: 1;
+/* RIGHT SIDE */
+.right-tools {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-/* SNOWFLAKE */
+.clock {
+    font-size: 12px;
+    color: #5c8fb3;
+}
+
 .snowflake {
-    margin-left: auto;
-    padding-right: 10px;
     font-size: 18px;
-    user-select: none;
 }
 
 /* CENTER */
@@ -104,57 +84,46 @@ body {
 }
 
 .logo {
-    font-family: "Handjet", cursive;
+    font-family: "Handjet";
     font-size: 5rem;
     color: #8fd3ff;
-    margin-bottom: 25px;
-    text-shadow: 0 0 12px rgba(150,210,255,0.4);
+    text-shadow: 0 0 14px rgba(140,200,255,0.5);
 }
 
 #search {
     width: 55%;
-    padding: 14px 16px;
+    padding: 14px;
     border-radius: 14px;
     border: 1px solid #cfe3f3;
-    outline: none;
-    font-size: 14px;
-    background: white;
 }
 
-#search:focus {
-    border-color: #8fd3ff;
-    box-shadow: 0 0 12px rgba(140,200,255,0.35);
-}
-
-/* ENGINE */
-.engine-bar {
+/* SIDE TOOLS */
+.side-tools {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 10px;
+    gap: 8px;
+}
+
+.settings-icon {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* DISCORD POPUP */
+.discord-popup {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin-top: 14px;
+    background: rgba(0,0,0,0.3);
 }
 
-.engine-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #7aa8c4;
-}
-
-.engine-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: #8fd3ff;
-    box-shadow: 0 0 6px rgba(140,200,255,0.5);
-}
-
-#engine-select {
-    padding: 6px 10px;
-    border-radius: 10px;
-    border: 1px solid #cfe3f3;
+.discord-box {
     background: white;
-    font-size: 12px;
-    color: #4a7a9a;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
 }
