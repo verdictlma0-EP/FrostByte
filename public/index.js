@@ -22,10 +22,13 @@ function updateEngineUI(id) {
   document.getElementById('engine-select').value = id;
 }
 
-/* ---------------- TABS ---------------- */
+/* ---------------- TAB STATE ---------------- */
 
 let tabs = [];
 let activeTab = null;
+let dragTabId = null;
+
+/* ---------------- TAB SYSTEM ---------------- */
 
 function newTab(url = '') {
   const id = 'tab-' + Date.now();
@@ -75,6 +78,8 @@ function switchTab(id) {
   renderTabs();
 }
 
+/* ---------------- DRAG + RENDER ---------------- */
+
 function renderTabs() {
   const container = document.getElementById('tabs');
   container.innerHTML = '';
@@ -82,7 +87,9 @@ function renderTabs() {
   tabs.forEach(tab => {
     const el = document.createElement('div');
     el.className = 'tab' + (tab.id === activeTab ? ' active' : '');
-    el.textContent = tab.title.slice(0, 18);
+    el.draggable = true;
+
+    el.textContent = tab.title.slice(0, 14);
 
     el.onclick = () => switchTab(tab.id);
 
@@ -95,6 +102,43 @@ function renderTabs() {
     };
 
     el.appendChild(x);
+
+    /* DRAG EVENTS */
+
+    el.addEventListener('dragstart', () => {
+      dragTabId = tab.id;
+      el.classList.add('dragging');
+    });
+
+    el.addEventListener('dragend', () => {
+      dragTabId = null;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('drag-over'));
+    });
+
+    el.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (!dragTabId || dragTabId === tab.id) return;
+      el.classList.add('drag-over');
+    });
+
+    el.addEventListener('dragleave', () => {
+      el.classList.remove('drag-over');
+    });
+
+    el.addEventListener('drop', (e) => {
+      e.preventDefault();
+
+      if (!dragTabId || dragTabId === tab.id) return;
+
+      const from = tabs.findIndex(t => t.id === dragTabId);
+      const to = tabs.findIndex(t => t.id === tab.id);
+
+      const moved = tabs.splice(from, 1)[0];
+      tabs.splice(to, 0, moved);
+
+      renderTabs();
+    });
+
     container.appendChild(el);
   });
 }
@@ -132,24 +176,15 @@ function navigate(raw) {
   renderTabs();
 }
 
-/* ---------------- VIEW CONTROL ---------------- */
+/* ---------------- VIEW ---------------- */
 
 function showTab(tab) {
-  tabs.forEach(t => {
-    if (t.frame) t.frame.style.display = 'none';
-  });
-
+  tabs.forEach(t => t.frame && (t.frame.style.display = 'none'));
   if (tab?.frame) tab.frame.style.display = 'block';
-
   document.querySelector('.center').style.display = 'none';
 }
 
-function showHome() {
-  tabs.forEach(t => t.frame && (t.frame.style.display = 'none'));
-  document.querySelector('.center').style.display = '';
-}
-
-/* ---------------- NAV BUTTONS ---------------- */
+/* ---------------- CONTROLS ---------------- */
 
 function back() {
   const tab = tabs.find(t => t.id === activeTab);
@@ -185,9 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateEngineUI(getEngine());
 
   document.getElementById('search').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      navigate(e.target.value);
-    }
+    if (e.key === 'Enter') navigate(e.target.value);
   });
 
   newTab();
