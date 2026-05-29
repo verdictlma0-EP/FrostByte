@@ -12,6 +12,7 @@ body {
     flex-direction: column;
 }
 
+/* TOPBAR */
 .topbar {
     display: flex;
     align-items: center;
@@ -22,7 +23,7 @@ body {
 }
 
 .nav button,
-.tab-controls button {
+.tab-add {
     border: none;
     background: #eaf6ff;
     padding: 8px 10px;
@@ -31,15 +32,17 @@ body {
 }
 
 .nav button:hover,
-.tab-controls button:hover {
+.tab-add:hover {
     background: #dff2ff;
 }
 
+/* TABS */
 .tabs {
     display: flex;
     gap: 6px;
     flex: 1;
     overflow-x: auto;
+    align-items: center;
 }
 
 .tab {
@@ -50,12 +53,34 @@ body {
     white-space: nowrap;
     font-size: 13px;
     user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .tab.active {
     background: #cfeaff;
 }
 
+.tab-close {
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.tab-close:hover {
+    opacity: 1;
+}
+
+/* SNOWFLAKE */
+.snowflake {
+    margin-left: auto;
+    padding-right: 10px;
+    font-size: 18px;
+    user-select: none;
+}
+
+/* CENTER */
 .center {
     flex: 1;
     display: flex;
@@ -87,6 +112,7 @@ body {
     box-shadow: 0 0 12px rgba(140,200,255,0.35);
 }
 
+/* ENGINE */
 .engine-bar {
     display: flex;
     align-items: center;
@@ -100,7 +126,6 @@ body {
     gap: 6px;
     font-size: 12px;
     color: #7aa8c4;
-    user-select: none;
 }
 
 .engine-dot {
@@ -108,8 +133,6 @@ body {
     height: 9px;
     border-radius: 50%;
     background: #8fd3ff;
-    display: inline-block;
-    transition: background 0.3s;
     box-shadow: 0 0 6px rgba(140,200,255,0.5);
 }
 
@@ -118,20 +141,6 @@ body {
     border-radius: 10px;
     border: 1px solid #cfe3f3;
     background: white;
-    font-family: "JetBrains Mono", monospace;
     font-size: 12px;
     color: #4a7a9a;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-#engine-select:focus,
-#engine-select:hover {
-    border-color: #8fd3ff;
-    box-shadow: 0 0 8px rgba(140,200,255,0.3);
-}
-
-#engine-select option:disabled {
-    color: #bbb;
 }
