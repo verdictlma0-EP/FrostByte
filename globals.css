@@ -189,7 +189,6 @@ html, body {
   margin: 0 4px;
 }
 
-/* === BOOT SCREEN === */
 .boot-screen {
   position: fixed;
   inset: 0;
@@ -320,7 +319,6 @@ html, body {
   background: white;
 }
 
-/* === AUTH MODAL === */
 .auth-overlay {
   position: fixed;
   inset: 0;
@@ -425,7 +423,6 @@ html, body {
 
 .yt-btn:hover { background: rgba(255,255,255,0.14); }
 
-/* === SETTINGS PANEL === */
 .settings-grid {
   display: grid;
   grid-template-columns: 140px 1fr;
