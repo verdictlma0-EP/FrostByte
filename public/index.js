@@ -1,233 +1,115 @@
-'use strict';
-
-const ENGINES = [
-  { id: 'scramjet', label: 'Scramjet' },
-  { id: 'uv', label: 'Ultraviolet' },
-  { id: 'sfck', label: 'Sfck' },
-];
-
-const ENGINE_KEY = 'fb_engine';
-
-function getEngine() {
-  return localStorage.getItem(ENGINE_KEY) || 'scramjet';
-}
-
-function setEngine(id) {
-  localStorage.setItem(ENGINE_KEY, id);
-  updateEngineUI(id);
-}
-
-function updateEngineUI(id) {
-  document.getElementById('engine-label').textContent = id;
-  document.getElementById('engine-select').value = id;
-}
-
-/* ---------------- TAB STATE ---------------- */
-
 let tabs = [];
 let activeTab = null;
-let dragTabId = null;
 
-/* ---------------- TAB SYSTEM ---------------- */
+function newTab() {
+  const id = Date.now().toString();
 
-function newTab(url = '') {
-  const id = 'tab-' + Date.now();
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'position:fixed;top:50px;left:0;width:100%;height:calc(100% - 50px);border:none;display:none';
 
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText =
-    'position:fixed;top:50px;left:0;width:100%;height:calc(100% - 50px);border:none;display:none;z-index:100;';
+  document.body.appendChild(frame);
 
-  document.body.appendChild(iframe);
-
-  const tab = {
-    id,
-    url,
-    title: 'New Tab',
-    frame: iframe
-  };
+  const tab = { id, frame, title: "New Tab", url: "" };
 
   tabs.push(tab);
   activeTab = id;
 
   renderTabs();
-
-  if (url) navigate(url);
-  else showTab(tab);
+  showTab(tab);
 }
 
-function closeTab(id) {
-  const tab = tabs.find(t => t.id === id);
-  if (tab?.frame) tab.frame.remove();
+function renderTabs() {
+  const el = document.getElementById("tabs");
+  el.innerHTML = `<button class="tab-add" onclick="newTab()">＋</button>`;
 
-  tabs = tabs.filter(t => t.id !== id);
-
-  if (activeTab === id && tabs.length) {
-    activeTab = tabs[tabs.length - 1].id;
-    showTab(tabs[tabs.length - 1]);
-  }
-
-  renderTabs();
+  tabs.forEach(t => {
+    const d = document.createElement("div");
+    d.className = "tab" + (t.id === activeTab ? " active" : "");
+    d.innerHTML = `${t.title.slice(0,12)} <span onclick="closeTab('${t.id}')">×</span>`;
+    d.onclick = () => switchTab(t.id);
+    el.appendChild(d);
+  });
 }
 
 function switchTab(id) {
-  const tab = tabs.find(t => t.id === id);
-  if (!tab) return;
-
   activeTab = id;
-  showTab(tab);
+  showTab(tabs.find(t => t.id === id));
   renderTabs();
 }
 
-/* ---------------- DRAG + RENDER ---------------- */
+function closeTab(id) {
+  const t = tabs.find(x => x.id === id);
+  if (t?.frame) t.frame.remove();
 
-function renderTabs() {
-  const container = document.getElementById('tabs');
-  container.innerHTML = '';
+  tabs = tabs.filter(x => x.id !== id);
 
-  tabs.forEach(tab => {
-    const el = document.createElement('div');
-    el.className = 'tab' + (tab.id === activeTab ? ' active' : '');
-    el.draggable = true;
-
-    el.textContent = tab.title.slice(0, 14);
-
-    el.onclick = () => switchTab(tab.id);
-
-    const x = document.createElement('span');
-    x.className = 'tab-close';
-    x.textContent = '×';
-    x.onclick = (e) => {
-      e.stopPropagation();
-      closeTab(tab.id);
-    };
-
-    el.appendChild(x);
-
-    /* DRAG EVENTS */
-
-    el.addEventListener('dragstart', () => {
-      dragTabId = tab.id;
-      el.classList.add('dragging');
-    });
-
-    el.addEventListener('dragend', () => {
-      dragTabId = null;
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('drag-over'));
-    });
-
-    el.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      if (!dragTabId || dragTabId === tab.id) return;
-      el.classList.add('drag-over');
-    });
-
-    el.addEventListener('dragleave', () => {
-      el.classList.remove('drag-over');
-    });
-
-    el.addEventListener('drop', (e) => {
-      e.preventDefault();
-
-      if (!dragTabId || dragTabId === tab.id) return;
-
-      const from = tabs.findIndex(t => t.id === dragTabId);
-      const to = tabs.findIndex(t => t.id === tab.id);
-
-      const moved = tabs.splice(from, 1)[0];
-      tabs.splice(to, 0, moved);
-
-      renderTabs();
-    });
-
-    container.appendChild(el);
-  });
-}
-
-/* ---------------- NAVIGATION ---------------- */
-
-function getProxyUrl(raw, engine) {
-  let url = raw.trim();
-
-  if (!/^https?:\/\//i.test(url)) {
-    if (url.includes('.')) url = 'https://' + url;
-    else url = 'https://www.google.com/search?q=' + encodeURIComponent(url);
+  if (activeTab === id && tabs.length) {
+    activeTab = tabs[0].id;
+    showTab(tabs[0]);
   }
 
-  if (engine === 'uv') return '/service/' + __uv$config.encodeUrl(url);
-  if (engine === 'sfck') return '/sfck/service/' + btoa(url);
-
-  return '/scramjet/service/' + encodeURIComponent(url);
+  renderTabs();
 }
 
-function navigate(raw) {
+function navigate(url) {
   const tab = tabs.find(t => t.id === activeTab);
   if (!tab) return;
 
-  const engine = getEngine();
-  const proxyUrl = getProxyUrl(raw, engine);
-
-  tab.frame.src = proxyUrl;
-  tab.url = raw;
-  tab.title = raw;
-
-  document.getElementById('search').value = raw;
+  tab.frame.src = "/scramjet/service/" + encodeURIComponent(url);
+  tab.url = url;
+  tab.title = url;
 
   showTab(tab);
   renderTabs();
 }
 
-/* ---------------- VIEW ---------------- */
-
 function showTab(tab) {
-  tabs.forEach(t => t.frame && (t.frame.style.display = 'none'));
-  if (tab?.frame) tab.frame.style.display = 'block';
-  document.querySelector('.center').style.display = 'none';
+  tabs.forEach(t => t.frame.style.display = "none");
+  if (tab?.frame) tab.frame.style.display = "block";
 }
 
-/* ---------------- CONTROLS ---------------- */
-
 function back() {
-  const tab = tabs.find(t => t.id === activeTab);
-  try { tab.frame.contentWindow.history.back(); } catch {}
+  const t = tabs.find(x => x.id === activeTab);
+  try { t.frame.contentWindow.history.back(); } catch {}
 }
 
 function forward() {
-  const tab = tabs.find(t => t.id === activeTab);
-  try { tab.frame.contentWindow.history.forward(); } catch {}
+  const t = tabs.find(x => x.id === activeTab);
+  try { t.frame.contentWindow.history.forward(); } catch {}
 }
 
 function reload() {
-  const tab = tabs.find(t => t.id === activeTab);
-  try { tab.frame.contentWindow.location.reload(); }
-  catch { tab.frame.src = tab.frame.src; }
+  const t = tabs.find(x => x.id === activeTab);
+  try { t.frame.contentWindow.location.reload(); } catch {}
 }
 
-/* ---------------- INIT ---------------- */
+/* CLOCK */
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").textContent =
+    now.toLocaleTimeString() + " " + now.toLocaleDateString();
+}
+setInterval(updateClock, 1000);
 
-document.addEventListener('DOMContentLoaded', () => {
-  const sel = document.getElementById('engine-select');
+/* DISCORD */
+function openDiscordPopup() {
+  document.getElementById("discord").style.display = "flex";
+}
 
-  ENGINES.forEach(e => {
-    const opt = document.createElement('option');
-    opt.value = e.id;
-    opt.textContent = e.label;
-    sel.appendChild(opt);
-  });
+function closeDiscord() {
+  document.getElementById("discord").style.display = "none";
+}
 
-  sel.value = getEngine();
-  sel.addEventListener('change', e => setEngine(e.target.value));
+function joinDiscord() {
+  window.open("https://discord.gg/bd8Ap9er5U", "_blank");
+}
 
-  updateEngineUI(getEngine());
+function openSettings() {
+  window.location.href = "/settings.html";
+}
 
-  document.getElementById('search').addEventListener('keydown', e => {
-    if (e.key === 'Enter') navigate(e.target.value);
-  });
-
+window.onload = () => {
   newTab();
-});
-
-/* expose */
-window.newTab = newTab;
-window.back = back;
-window.forward = forward;
-window.reload = reload;
+  updateClock();
+  openDiscordPopup();
+};
