@@ -43,6 +43,7 @@ body {
     flex: 1;
     overflow-x: auto;
     align-items: center;
+    scroll-behavior: smooth;
 }
 
 .tab {
@@ -56,12 +57,25 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+
+    transition: transform 0.18s ease, background 0.2s ease, opacity 0.2s ease;
 }
 
 .tab.active {
     background: #cfeaff;
 }
 
+/* drag states */
+.tab.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.tab.drag-over {
+    transform: translateX(6px);
+}
+
+/* close button */
 .tab-close {
     font-size: 14px;
     cursor: pointer;
