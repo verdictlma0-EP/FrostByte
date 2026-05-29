@@ -18,22 +18,20 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 const BACKEND_URL = (process.env.BACKEND_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
 
-
 const RH_PORT = process.env.RH_PORT || 8008;
 let rhReady = false;
 
 function startRammerhead() {
   try {
-export depending on version
     const rh = require('rammerhead');
     const rhServer = (rh.createServer || rh.default || rh)({
       port: RH_PORT,
       logLevel: 'warn',
-      reverseProxy: true,              crossDomainWorkers: true,
+      reverseProxy: true,
+      crossDomainWorkers: true,
       generateClientDir: path.join(__dirname, 'node_modules/rammerhead/src/client'),
     });
 
- { server }
     const srv = rhServer.server || rhServer;
     if (srv && srv.listen && !srv.listening) {
       srv.listen(RH_PORT, () => {
@@ -64,10 +62,8 @@ rhProxy.on('error', (err, _req, res) => {
     : (res.writeHead(503), res.end('Rammerhead unavailable'));
 });
 
-
 const ENGINE_COOKIE = 'fb_engine';
 const VALID_ENGINES = new Set(['scramjet', 'uv', 'aero', 'rammerhead', 'fetch']);
-
 
 const agentOptions = { keepAlive: true, maxSockets: 100, timeout: 60000 };
 const httpAgent    = new http.Agent(agentOptions);
@@ -105,8 +101,6 @@ app.get('/health', (_req, res) => {
   });
 });
 
-
-
 app.get('/api/proxy/engines', (req, res) => {
   const current = req.headers.cookie
     ?.split(';')
@@ -137,14 +131,11 @@ app.post('/api/proxy/engine', (req, res) => {
   res.json({ ok: true, engine });
 });
 
-// ── Rammerhead HTTP proxy ─────────────────────────────────────────────────────
 app.use('/rh', (req, res) => {
   if (!rhReady) return res.status(503).send('Rammerhead not available');
-  // strip /rh prefix so RH sees the path it expects
   req.url = req.url.replace(/^\/rh/, '') || '/';
   rhProxy.web(req, res);
 });
-
 
 function getCache(key) {
   const hit = cache.get(key);
@@ -230,7 +221,6 @@ app.get('/fetch', async (req, res) => {
     res.status(502).json({ error: err.message });
   }
 });
-
 
 app.use('/scramjet', express.static(path.join(__dirname, 'public/scramjet')));
 app.use('/uv',       express.static(path.join(__dirname, 'public/uv')));
