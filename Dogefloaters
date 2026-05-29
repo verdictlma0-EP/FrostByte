@@ -1,0 +1,68 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
+const PHRASES = [
+  { text: 'wow', color: '#F5C542' },
+  { text: 'such speed', color: '#a78bfa' },
+  { text: 'very proxy', color: '#60a5fa' },
+  { text: 'many tabs', color: '#34d399' },
+  { text: 'much secure', color: '#f472b6' },
+  { text: 'so browsing', color: '#F5C542' },
+  { text: 'amaze', color: '#fb923c' },
+  { text: 'wow', color: '#a78bfa' },
+  { text: 'very fast', color: '#60a5fa' },
+  { text: 'doge approved', color: '#34d399' },
+];
+
+type Floater = {
+  id: number;
+  text: string;
+  color: string;
+  x: number;
+  y: number;
+  size: number;
+  duration: number;
+  delay: number;
+};
+
+let counter = 0;
+
+export default function DogeFloaters() {
+  const [floaters, setFloaters] = useState<Floater[]>(() =>
+    Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      ...PHRASES[i % PHRASES.length],
+      x: 5 + Math.random() * 85,
+      y: 10 + Math.random() * 75,
+      size: 0.8 + Math.random() * 0.7,
+      duration: 6 + Math.random() * 6,
+      delay: Math.random() * 4,
+    }))
+  );
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
+      {floaters.map(f => (
+        <span
+          key={f.id}
+          className="font-comic"
+          style={{
+            position: 'absolute',
+            left: `${f.x}%`,
+            top: `${f.y}%`,
+            color: f.color,
+            fontSize: `${f.size}rem`,
+            fontWeight: 700,
+            textShadow: `0 2px 8px rgba(0,0,0,0.6)`,
+            opacity: 0.45,
+            animation: `floatDoge ${f.duration}s ease-in-out ${f.delay}s infinite`,
+            userSelect: 'none',
+          }}
+        >
+          {f.text}
+        </span>
+      ))}
+    </div>
+  );
+}
