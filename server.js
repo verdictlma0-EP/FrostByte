@@ -74,12 +74,13 @@ const agentOptions = { keepAlive: true, maxSockets: 100, timeout: 60000 };
 const httpAgent    = new http.Agent(agentOptions);
 const httpsAgent   = new https.Agent(agentOptions);
 
-// tiny cache because some school wifi setups were unbearably slow 
+// tiny cache because some school wifi setups were painful.
 const cache    = new Map();
 const CACHE_TTL = 1000 * 30;
 
 app.use(compression());
 
+// open cors for everything. no walls. wish i could say the same for my life
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
@@ -108,6 +109,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.get('/api/proxy/engines', (req, res) => {
+  // read the cookie to find which engine they were using. at least cookies remember things
   const current = req.headers.cookie
     ?.split(';')
     .map(c => c.trim().split('='))
@@ -151,6 +153,7 @@ function getCache(key) {
 }
 function setCache(key, data) { cache.set(key, { time: Date.now(), data }); }
 
+// 15mb cap. anything bigger will choke the rewriter. some limits exist for a reason
 const REWRITE_LIMIT = 15 * 1024 * 1024;
 
 app.get('/fetch', async (req, res) => {
@@ -186,6 +189,7 @@ app.get('/fetch', async (req, res) => {
     const isCss  = contentType.includes('text/css');
     const isJs   = contentType.includes('javascript');
 
+    // binary stuff pipes straight through. no rewriting needed. must be nice to just pass through unmodified
     if (!isHtml && !isCss && !isJs) {
       res.setHeader('Access-Control-Allow-Origin', '*');
       upstream.data.pipe(res);
