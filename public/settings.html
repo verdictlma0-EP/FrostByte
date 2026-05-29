@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frostbyte — Settings</title>
+
+<!-- same fonts as index. at least we're consistent about something -->
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Handjet:wght@500;700&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&family=Nunito:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:          #f6fbff;
+    --bg2:         #eaf6ff;
+    --surface:     #ffffff;
+    --surface2:    #f0f8ff;
+    --border:      #d7e9f5;
+    --border2:     #c2dcef;
+    --text:        #1a2a3a;
+    --text2:       #4a6a8a;
+    --text3:       #7a9ab8;
+    --accent:      #60aff5;   /* this gets overridden by the color picker. one of the few things the user controls */
+    --accent-glow: rgba(96,175,245,0.35);
+    --accent-dim:  rgba(96,175,245,0.12);
+    --shadow:      0 2px 16px rgba(96,160,220,0.10);
+    --shadow-lg:   0 8px 32px rgba(96,160,220,0.15);
+    --radius:      14px;      /* --radius scales with ui-scale. don't hardcode it elsewhere */
+    --font-body:   'JetBrains Mono', monospace;
+    --font-display:'Handjet', cursive;
+    --ui-scale:    1;         /* multiplied into font-size on <html>. 1 = normal */
+    --anim-speed:  1;         /* 0 = no animations. multiply all durations by this */
+    --transition:  0.2s ease;
+  }
+
+  /* dark theme vars. toggled by adding [data-theme="dark"] to <html> */
+  [data-theme="dark"] {
+    --bg:        #0d1520;
+    --bg2:       #111e2e;
+    --surface:   #162030;
+    --surface2:  #1c2a3e;
+    --border:    #1e3050;
+    --border2:   #243a58;
+    --text:      #d0e8f8;
+    --text2:     #7098b8;
+    --text3:     #405870;
+    --shadow:    0 2px 16px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    /* ui scale lives here. everything rem-based scales with it */
+    font-size: calc(16px * var(--ui-scale));
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background calc(0.3s * var(--anim-speed)) ease,
+                color calc(0.3s * var(--anim-speed)) ease;
+  }
+
+  /* matches index.html so it feels like you didn't leave the app. you kind of did though  */
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 48px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow);
+  }
+
+  .back-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .back-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    /* glow on hover. the button gets attention. nice for it */
+    box-shadow: 0 0 10px var(--accent-glow);
+    transform: translateY(-1px);
+  }
+
+  .topbar-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .topbar-sub {
+    font-size: 0.7rem;
+    color: var(--text3);
+    margin-left: auto;
+  }
+
+  /* not creative but it works and i'm tired */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 16px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow-y: auto;
+    transition: background calc(0.3s * var(--anim-speed)) ease;
+  }
+
+  .nav-section-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    padding: 10px 10px 4px;
+    /* section labels. tiny. overlooked. still necessary */
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px;
+    border-radius: 9px;
+    font-size: 0.78rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+    user-select: none;
+  }
+
+  .nav-item:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    /* accent background so you know where you are. unlike in life */
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .nav-item .icon { font-size: 0.95rem; width: 18px; text-align: center; }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 36px;
+  }
+
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    font-family: var(--font-display);
+    letter-spacing: 1px;
+  }
+
+  .panel-desc {
+    font-size: 0.72rem;
+    color: var(--text3);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .section {
+    margin-bottom: 32px;
+  }
+
+  .section-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 14px;
+    /* divider line to break up sections without adding another element */
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    margin-bottom: 8px;
+    transition: border-color calc(0.15s * var(--anim-speed)) ease,
+                box-shadow  calc(0.15s * var(--anim-speed)) ease;
+    /* hover glow so you know it's interactive and not just decorative */
+  }
+
+  .setting-row:hover {
+    border-color: var(--border2);
+    box-shadow: var(--shadow);
+  }
+
+  .setting-label { font-size: 0.8rem; color: var(--text); font-weight: 500; }
+  .setting-sublabel { font-size: 0.68rem; color: var(--text3); margin-top: 2px; }
+
+
+  .toggle {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: var(--border2);
+    cursor: pointer;
+    transition: background calc(0.2s * var(--anim-speed)) ease;
+  }
+
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform calc(0.2s * var(--anim-speed)) cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  .toggle input:checked + .toggle-track { background: var(--accent); }
+  .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+
+
+  .seg {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .seg-btn {
+    padding: 5px 14px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+  }
+
+  .seg-btn.active {
+    background: var(--surface);
+    color: var(--accent);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    font-weight: 600;
+    /* shadow lifts the active one. tiny detail. i like it */
+  }
+
+
+  .styled-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 6px 12px;
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: border-color calc(0.15s * var(--anim-speed)) ease;
+    min-width: 140px;
+  }
+
+  .styled-select:focus { border-color: var(--accent); }
+
+
+  .styled-range {
+    -webkit-appearance: none;
+    width: 160px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--border2);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .styled-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent-glow);
+    /* glow on the thumb so it looks intentional and not like a default */
+    cursor: pointer;
+    transition: transform calc(0.15s * var(--anim-speed)) ease;
+  }
+
+  .styled-range::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  .range-val {
+    font-size: 0.72rem;
+    color: var(--accent);
+    min-width: 36px;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* I get to pick this one. rare moment of control */
+  .color-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .color-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+    position: relative;
+  }
+
+  .color-swatch:hover { transform: scale(1.15); }
+
+  .color-swatch.selected {
+    /* white ring around selected swatch. not the most creative indicator but it works */
+    border-color: var(--surface);
+    box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* custom color input tucked at the end */
+  .color-custom {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px dashed var(--border2);
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color calc(0.15s * var(--anim-speed)) ease;
+  }
+
+  .color-custom:hover { border-color: var(--accent); }
+  .color-custom input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .color-custom-icon { font-size: 0.7rem; color: var(--text3); pointer-events: none; }
+
+
+  .font-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+
+  .font-card {
+    padding: 14px;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+    background: var(--surface);
+  }
+
+  .font-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .font-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+
+  .font-preview {
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .font-name { font-size: 0.65rem; color: var(--text3); font-family: var(--font-body); }
+
+
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .theme-card {
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+  }
+
+  .theme-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .theme-card.selected { border-color: var(--accent); }
+
+  .theme-preview {
+    height: 64px;
+    /* previews are just gradients. full screenshots would be too much */
+  }
+
+  .theme-preview.p1 {
+    background: linear-gradient(135deg, #1e1b4b, #312e81, #1e3a5f, #0f172a);
+  }
+  .theme-preview.p2 {
+    background: linear-gradient(160deg, #0f0c29, #302b63, #24243e);
+  }
+  .theme-preview.p3 {
+    background: linear-gradient(180deg, #0a0a1a, #1a1a3e, #0d1b2a);
+  }
+  .theme-preview.p-light {
+    background: linear-gradient(135deg, #f0f8ff, #ddeeff, #e8f4ff);
+  }
+  .theme-preview.p-sunset {
+    background: linear-gradient(135deg, #1a0a00, #3d1505, #1a0a22);
+  }
+
+  .theme-label {
+    padding: 6px 10px;
+    font-size: 0.68rem;
+    color: var(--text2);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+
+  .save-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px); /* starts hidden below */
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow-lg);
+    transition: transform calc(0.3s * var(--anim-speed)) cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 999;
+  }
+
+  .save-bar.visible { transform: translateX(-50%) translateY(0); }
+
+  .save-bar-text { font-size: 0.75rem; color: var(--text2); }
+
+  .save-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+  }
+
+  .save-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  .discard-btn {
+    background: transparent;
+    color: var(--text3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all calc(0.15s * var(--anim-speed)) ease;
+  }
+
+  .discard-btn:hover { border-color: var(--border2); color: var(--text2); }
+
+
+  .tag {
+    font-size: 0.6rem;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-left: 6px;
+  }
+
+  .tag-auto { background: var(--accent-dim); color: var(--accent); }
+  .tag-new  { background: rgba(52,211,153,0.15); color: #34d399; }
+
+
+  .schedule-vis {
+    display: flex;
+    height: 28px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+
+  .schedule-light {
+    background: linear-gradient(90deg, #f0f8ff, #ddeeff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: #4a6a8a;
+    /* takes up the daytime portion — 13 out of 24 hours roughly */
+    flex: 13;
+  }
+
+  .schedule-dark {
+    background: linear-gradient(90deg, #111e2e, #162030);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: #7098b8;
+    /* remaining 11 hours. dark mode gets the nights */
+    flex: 11;
+  }
+
+  .schedule-label {
+    font-size: 0.64rem;
+    color: var(--text3);
+    text-align: center;
+  }
+
+
+  .anim-demo {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .anim-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 0.8s ease-in-out infinite alternate;
+  }
+
+  .anim-dot:nth-child(2) { animation-delay: 0.15s; opacity: 0.7; }
+  .anim-dot:nth-child(3) { animation-delay: 0.3s;  opacity: 0.45; }
+
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-8px); }
+  }
+
+  /* when animations are off the dots just sit there. kind of sad honestly */
+  body.no-animations .anim-dot { animation: none; }
+  body.no-animations * { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+
+
+  .flex-between { display: flex; align-items: center; justify-content: space-between; }
+  .flex-row { display: flex; align-items: center; gap: 10px; }
+
+  .info-box {
+    background: var(--accent-dim);
+    border: 1px solid rgba(96,175,245,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.72rem;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  .info-box strong { color: var(--accent); }
+</style>
+</head>
+
+<body>
+
+
+<div class="topbar">
+  <!-- back button. lets you leave. some days i wish i had one of these irl -->
+  <a class="back-btn" href="index.html">← Back</a>
+  <div class="topbar-title">SETTINGS</div>
+  <div class="topbar-sub" id="save-status">all changes saved</div>
+</div>
+
+<div class="layout">
+
+
+  <nav class="sidebar">
+    <div class="nav-section-label">appearance</div>
+    <div class="nav-item active" data-panel="theme" onclick="switchPanel(this)">
+      <span class="icon"></span> Theme
+    </div>
+    <div class="nav-item" data-panel="fonts" onclick="switchPanel(this)">
+      <span class="icon"></span> Fonts
+    </div>
+    <div class="nav-item" data-panel="scaling" onclick="switchPanel(this)">
+      <span class="icon"></span> Scaling
+    </div>
+    <div class="nav-item" data-panel="animations" onclick="switchPanel(this)">
+      <span class="icon"></span> Animations
+    </div>
+
+    <div class="nav-section-label">browser</div>
+    <div class="nav-item" data-panel="clock" onclick="switchPanel(this)">
+      <span class="icon"></span> Clock
+    </div>
+    <div class="nav-item" data-panel="general" onclick="switchPanel(this)">
+      <span class="icon"></span> General
+    </div>
+  </nav>
+
+<! -- there is no emoji or shit inside the icon class because i gave up on finding them -- !>
+
+
+  <main class="content">
+
+
+    <div class="panel active" id="panel-theme">
+      <div class="panel-title">THEME</div>
+      <div class="panel-desc">light, dark, or auto. the auto one is the most interesting one we have. probably.</div>
+
+      <div class="section">
+        <div class="section-title">color mode</div>
+
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+          <div class="seg" id="theme-seg">
+            <button class="seg-btn" onclick="setThemeMode('light', this)">Light</button>
+            <button class="seg-btn active" onclick="setThemeMode('auto', this)">Auto<span class="tag tag-auto">smart</span></button>
+            <button class="seg-btn" onclick="setThemeMode('dark', this)">Dark</button>
+          </div>
+
+          <!-- auto mode schedule visualization. shows the day/night split at a glance -->
+          <div id="auto-info" style="width:100%;">
+            <div class="schedule-vis">
+              <div class="schedule-light"> 7am – 8pm</div>
+              <div class="schedule-dark"> 8pm – 7am</div>
+            </div>
+            <div class="schedule-label">auto switches at 7:00 AM and 8:00 PM based on your local time</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">accent color</div>
+        <!-- the thing the user actually wanted to change. everything else was just warmup -->
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 14px;">
+          <div>
+            <div class="setting-label">Accent Color</div>
+            <div class="setting-sublabel">affects buttons, highlights, active states, and the glow everywhere</div>
+          </div>
+          <div class="color-grid" id="color-grid">
+            <!-- swatches injected by js. hardcoding them in html felt wrong -->
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">wallpaper</div>
+        <div class="theme-grid" id="wallpaper-grid">
+          <!-- wallpaper cards injected by js too -->
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-fonts">
+      <div class="panel-title">FONTS</div>
+      <div class="panel-desc">pick something to look at all day. choose wisely. you'll be staring at it for a while.</div>
+
+      <div class="section">
+        <div class="section-title">interface font</div>
+        <!-- font cards show a preview so you know what you're getting -->
+        <div class="font-grid" id="font-grid">
+          <!-- injected by js. each card shows a live preview of the font -->
+        </div>
+      </div>
+    </div>
+
+
+    <div class="panel" id="panel-scaling">
+      <div class="panel-title">UI SCALING</div>
+      <div class="panel-desc">make things bigger or smaller. the browser doesn't care either way.</div>
+
+      <div class="section">
+        <div class="section-title">interface scale</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">UI Scale</div>
+            <!-- subtext mentions the range so users don't just slam it to max right away -->
+            <div class="setting-sublabel">100% is default. 80%–130% is the useful range probably</div>
+          </div>
+          <div class="flex-row">
+            <input type="range" class="styled-range" id="scale-slider"
+              min="80" max="130" step="5" value="100"
+              oninput="setScale(this.value)">
+            <div class="range-val" id="scale-val">100%</div>
+          </div>
+        </div>
+
+        <!-- quick preset buttons because sliders are annoying -->
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+          <div class="setting-label">Quick Presets</div>
+          <div class="seg">
+            <button class="seg-btn" onclick="setScalePreset(80)">Compact</button>
+            <button class="seg-btn active" onclick="setScalePreset(100)">Default</button>
+            <button class="seg-btn" onclick="setScalePreset(115)">Comfortable</button>
+            <button class="seg-btn" onclick="setScalePreset(130)">Large</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-animations">
+      <div class="panel-title">ANIMATIONS</div>
+      <div class="panel-desc">the bouncy stuff. some people love it. some people find it distracting. you decide.</div>
+
+      <div class="section">
+        <div class="section-title">motion settings</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Enable Animations</div>
+            <div class="setting-sublabel">transitions, hovers, bounces, the works</div>
+          </div>
+          <!-- the toggle that can turn itself off. something i wish i could do with myself -->
+          <label class="toggle">
+            <input type="checkbox" id="anim-toggle" checked onchange="setAnimations(this.checked)">
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Animation Speed</div>
+            <div class="setting-sublabel">1x is normal. lower is slower and calmer. higher is chaotic</div>
+          </div>
+          <div class="flex-row">
+            <input type="range" class="styled-range" id="speed-slider"
+              min="0.3" max="2" step="0.1" value="1"
+              oninput="setAnimSpeed(this.value)">
+            <div class="range-val" id="speed-val">1.0×</div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Floating Doge Words</div>
+            <div class="setting-sublabel">the "wow" and "such speed" text floating around. charming to some</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="doge-toggle" checked onchange="markDirty()">
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+          <div class="setting-label">Preview</div>
+          <div class="anim-demo">
+            <div class="anim-dot"></div>
+            <div class="anim-dot"></div>
+            <div class="anim-dot"></div>
+            <span style="font-size:0.72rem; color:var(--text3); margin-left:6px;" id="anim-preview-text">animations on — looking alive</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="panel" id="panel-clock">
+      <div class="panel-title">CLOCK</div>
+      <!-- at least the clock always knows what time it is. more than i can say for myself -->
+      <div class="panel-desc">at least the clock always knows what time it is. more than i can say for myself.</div>
+
+      <div class="section">
+        <div class="section-title">time format</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Hour Format</div>
+            <div class="setting-sublabel">12-hour shows AM/PM. 24-hour does not. pick your suffering</div>
+          </div>
+          <div class="seg" id="clock-seg">
+            <button class="seg-btn active" onclick="setClockFormat('12', this)">12h AM/PM</button>
+            <button class="seg-btn" onclick="setClockFormat('24', this)">24h</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Show Seconds</div>
+            <div class="setting-sublabel">more granular. more existential. your choice</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="seconds-toggle" onchange="markDirty()">
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Show Date</div>
+            <div class="setting-sublabel">month/day/year next to the clock. in case you've lost track</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="date-toggle" checked onchange="markDirty()">
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+
+        <!-- live preview so you see the format before saving -->
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+          <div class="setting-label">Preview</div>
+          <div id="clock-preview" style="font-size: 1.4rem; color: var(--accent); font-family: var(--font-display); letter-spacing:2px;">
+            <!-- filled by updateClockPreview() -->
+          </div>
+          <div style="font-size:0.66rem; color:var(--text3);">updates live so you can see what you're getting into</div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="panel" id="panel-general">
+      <div class="panel-title">GENERAL</div>
+      <div class="panel-desc">miscellaneous things that didn't fit anywhere else. you know how it is.</div>
+
+      <div class="section">
+        <div class="section-title">startup</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Show Boot Screen</div>
+            <!-- shown on first load, probably gets annoying after a while -->
+            <div class="setting-sublabel">the FrostByte splash on load. shown on first load, probably gets annoying after a while</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="boot-toggle" checked onchange="markDirty()">
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Auto Open Browser Tab</div>
+            <div class="setting-sublabel">opens a blank browser on launch so it doesn't just sit there looking empty</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="autoopen-toggle" checked onchange="markDirty()">
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">privacy</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Maintenance Mode</div>
+            <!-- the banner. it works i guess. none of the testers i have complained yet -->
+            <div class="setting-sublabel">shows the "such maintenance" banner across the top. let people know something's happening</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="maintenance-toggle" onchange="markDirty()">
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">data</div>
+
+        <!-- reset button. nuclear option. lives here far from the other controls for a reason -->
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Reset All Settings</div>
+            <div class="setting-sublabel">goes back to defaults. can't be undone. a fresh start whether you wanted one or not</div>
+          </div>
+          <button onclick="resetAll()" style="background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.25); color:#ff6060; border-radius:8px; padding:6px 14px; font-family:var(--font-body); font-size:0.72rem; cursor:pointer;">
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- save bar — floats up when you change something, disappears after you save -->
+<div class="save-bar" id="save-bar">
+  <span class="save-bar-text">unsaved changes</span>
+  <button class="discard-btn" onclick="discardChanges()">Discard</button>
+  <button class="save-btn" onclick="saveSettings()">Save</button>
+</div>
+
+
+<script>
+
+  const DEFAULTS = {
+    themeMode:   'auto',
+    accent:      '#60aff5',
+    wallpaper:   0,
+    font:        'JetBrains Mono',
+    uiScale:     100,
+    animations:  true,
+    animSpeed:   1.0,
+    dogeFloats:  true,
+    clockFormat: '12',
+    showSeconds: false,
+    showDate:    true,
+    bootScreen:  true,
+    autoOpen:    true,
+    maintenance: false,
+  };
+
+  // load saved settings or fall back to defaults
+  let settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem('fb_settings') || '{}') };
+  let dirty = false; // tracks unsaved changes so the save bar knows when to show up
+
+  const ACCENTS = [
+    '#60aff5', // frost blue — the default, chosen because it matches the logo
+    '#a78bfa', // purple
+    '#f472b6', // pink
+    '#34d399', // green
+    '#fb923c', // orange
+    '#F5C542', // doge yellow — had to include this one
+    '#f87171', // red
+    '#22d3ee', // cyan
+  ];
+
+
+  const FONTS = [
+    { name: 'JetBrains Mono', preview: 'Aa 01', label: 'JetBrains Mono' },
+    { name: 'Space Grotesk',  preview: 'Aa Bb', label: 'Space Grotesk'  },
+    { name: 'Nunito',         preview: 'Aa Bb', label: 'Nunito'          },
+    { name: 'Inter',          preview: 'Aa Bb', label: 'Inter'           },
+    { name: 'Fira Code',      preview: 'Aa 01', label: 'Fira Code'       },
+    { name: 'Handjet',        preview: 'Aa Bb', label: 'Handjet'         },
+  ];
+
+
+  const WALLPAPERS = [
+    { label: 'Midnight Blue', cls: 'p1'      },
+    { label: 'Deep Purple',   cls: 'p2'      },
+    { label: 'Dark Ocean',    cls: 'p3'      },
+    { label: 'Light Frost',   cls: 'p-light' },
+    { label: 'Sunset Dark',   cls: 'p-sunset'},
+  ];
+
+  function init() {
+    buildColorGrid();
+    buildWallpaperGrid();
+    buildFontGrid();
+    applyAll(settings);
+    updateClockPreview();
+    startClockTick();
+  }
+
+
+  function applyAll(s) {
+    // theme mode
+    setThemeMode(s.themeMode, null, true);
+    // accent
+    applyAccent(s.accent);
+    // font
+    applyFont(s.font);
+    // ui scale
+    document.getElementById('scale-slider').value = s.uiScale;
+    document.getElementById('scale-val').textContent = s.uiScale + '%';
+    applyScale(s.uiScale);
+    // animations
+    document.getElementById('anim-toggle').checked = s.animations;
+    document.getElementById('speed-slider').value = s.animSpeed;
+    document.getElementById('speed-val').textContent = s.animSpeed.toFixed(1) + '×';
+    document.getElementById('doge-toggle').checked = s.dogeFloats;
+    applyAnimations(s.animations, s.animSpeed);
+    // clock
+    setClockFormat(s.clockFormat, null, true);
+    document.getElementById('seconds-toggle').checked = s.showSeconds;
+    document.getElementById('date-toggle').checked = s.showDate;
+    // general
+    document.getElementById('boot-toggle').checked = s.bootScreen;
+    document.getElementById('autoopen-toggle').checked = s.autoOpen;
+    document.getElementById('maintenance-toggle').checked = s.maintenance;
+  }
+
+
+  function setThemeMode(mode, btnEl, silent) {
+    settings.themeMode = mode;
+
+    // update the segmented control buttons
+    document.querySelectorAll('#theme-seg .seg-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    else {
+      // find the right button when called programmatically (e.g. on load)
+      document.querySelectorAll('#theme-seg .seg-btn').forEach(b => {
+        if (b.textContent.toLowerCase().includes(mode)) b.classList.add('active');
+      });
+    }
+
+    // show/hide the auto schedule info block
+    document.getElementById('auto-info').style.display = mode === 'auto' ? 'block' : 'none';
+
+    applyTheme();
+    if (!silent) markDirty();
+  }
+
+  function applyTheme() {
+    const mode = settings.themeMode;
+    if (mode === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else if (mode === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      const h = new Date().getHours();
+      const isDark = h >= 20 || h < 7;
+      isDark
+        ? document.documentElement.setAttribute('data-theme', 'dark')
+        : document.documentElement.removeAttribute('data-theme');
+    }
+  }
+
+  // re-check auto theme every minute in case you leave the page open across the cutoff time
+  setInterval(() => {
+    if (settings.themeMode === 'auto') applyTheme();
+  }, 60000);
+
+  function buildColorGrid() {
+    const grid = document.getElementById('color-grid');
+    grid.innerHTML = '';
+
+    ACCENTS.forEach(color => {
+      const s = document.createElement('div');
+      s.className = 'color-swatch' + (color === settings.accent ? ' selected' : '');
+      s.style.background = color;
+      s.title = color;
+      s.onclick = () => pickAccent(color, s);
+      grid.appendChild(s);
+    });
+
+    // custom color picker at the end for when none of the presets are right
+    const custom = document.createElement('div');
+    custom.className = 'color-custom';
+    custom.title = 'Custom color';
+    custom.innerHTML = `<span class="color-custom-icon">＋</span><input type="color" value="${settings.accent}" oninput="pickAccent(this.value, null)">`;
+    grid.appendChild(custom);
+  }
+
+  function pickAccent(color, swatchEl) {
+    settings.accent = color;
+    applyAccent(color);
+    // deselect all swatches then select the clicked one
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    if (swatchEl) swatchEl.classList.add('selected');
+    markDirty();
+  }
+
+  function applyAccent(color) {
+    // hex to rgb for the glow variable. can't use hex directly in rgba()
+    const r = parseInt(color.slice(1,3),16);
+    const g = parseInt(color.slice(3,5),16);
+    const b = parseInt(color.slice(5,7),16);
+    document.documentElement.style.setProperty('--accent', color);
+    document.documentElement.style.setProperty('--accent-glow', `rgba(${r},${g},${b},0.35)`);
+    document.documentElement.style.setProperty('--accent-dim',  `rgba(${r},${g},${b},0.12)`);
+  }
+
+  function buildWallpaperGrid() {
+    const grid = document.getElementById('wallpaper-grid');
+    grid.innerHTML = '';
+    WALLPAPERS.forEach((w, i) => {
+      const card = document.createElement('div');
+      card.className = 'theme-card' + (i === settings.wallpaper ? ' selected' : '');
+      card.onclick = () => pickWallpaper(i, card);
+      card.innerHTML = `
+        <div class="theme-preview ${w.cls}"></div>
+        <div class="theme-label">${w.label}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function pickWallpaper(i, cardEl) {
+    settings.wallpaper = i;
+    document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+    cardEl.classList.add('selected');
+    markDirty();
+  }
+
+
+  function buildFontGrid() {
+    const grid = document.getElementById('font-grid');
+    grid.innerHTML = '';
+    FONTS.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'font-card' + (f.name === settings.font ? ' selected' : '');
+      card.onclick = () => pickFont(f.name, card);
+      card.innerHTML = `
+        <div class="font-preview" style="font-family:'${f.name}', sans-serif">${f.preview}</div>
+        <div class="font-name">${f.label}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function pickFont(name, cardEl) {
+    settings.font = name;
+    applyFont(name);
+    document.querySelectorAll('.font-card').forEach(c => c.classList.remove('selected'));
+    cardEl.classList.add('selected');
+    markDirty();
+  }
+
+  function applyFont(name) {
+    // --font-body is used in the CSS everywhere. swap it and things just update
+    document.documentElement.style.setProperty('--font-body', `'${name}', monospace`);
+    document.body.style.fontFamily = `'${name}', monospace`;
+  }
+
+  // ui scale here haaaaah how much i hate my life
+  function setScale(val) {
+    settings.uiScale = parseInt(val);
+    document.getElementById('scale-val').textContent = val + '%';
+    applyScale(val);
+    markDirty();
+  }
+
+  function setScalePreset(val) {
+    document.getElementById('scale-slider').value = val;
+    setScale(val);
+    // update preset button states
+    document.querySelectorAll('#panel-scaling .seg-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.trim().toLowerCase().startsWith(
+        val === 80 ? 'comp' : val === 100 ? 'def' : val === 115 ? 'com' : 'la'
+      ));
+    });
+  }
+
+  function applyScale(val) {
+    document.documentElement.style.setProperty('--ui-scale', val / 100);
+  }
+
+  function setAnimations(on) {
+    settings.animations = on;
+    applyAnimations(on, settings.animSpeed);
+    document.getElementById('anim-preview-text').textContent = on
+      ? 'animations on — looking alive'
+      : 'animations off — just sitting here';
+    document.getElementById('speed-slider').disabled = !on;
+    markDirty();
+  }
+
+  function setAnimSpeed(val) {
+    settings.animSpeed = parseFloat(val);
+    document.getElementById('speed-val').textContent = parseFloat(val).toFixed(1) + '×';
+    applyAnimations(settings.animations, settings.animSpeed);
+    markDirty();
+  }
+
+  function applyAnimations(on, speed) {
+    document.documentElement.style.setProperty('--anim-speed', on ? speed : 0);
+    document.body.classList.toggle('no-animations', !on);
+  }
+
+
+  function setClockFormat(fmt, btnEl, silent) {
+    settings.clockFormat = fmt;
+    document.querySelectorAll('#clock-seg .seg-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    else {
+      document.querySelectorAll('#clock-seg .seg-btn').forEach(b => {
+        if (b.textContent.startsWith(fmt)) b.classList.add('active');
+      });
+    }
+    updateClockPreview();
+    if (!silent) markDirty();
+  }
+
+  function updateClockPreview() {
+    const el = document.getElementById('clock-preview');
+    if (!el) return;
+    const now = new Date();
+    const showSec  = document.getElementById('seconds-toggle')?.checked;
+    const showDate = document.getElementById('date-toggle')?.checked;
+    const is24     = settings.clockFormat === '24';
+
+    const timeStr = now.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: showSec ? '2-digit' : undefined,
+      hour12: !is24,
+      // toLocaleTimeString handles the am pm shit correctly. one of the few things that just works
+    });
+
+    const dateStr = showDate ? '  ' + now.toLocaleDateString([], { month:'short', day:'numeric' }) : '';
+    el.textContent = timeStr + dateStr;
+  }
+
+  // clock preview ticks live so you can see what seconds mode looks like
+  function startClockTick() {
+    setInterval(updateClockPreview, 1000);
+  }
+
+  // also update preview when seconds or date toggle changes
+  document.addEventListener('change', e => {
+    if (['seconds-toggle','date-toggle'].includes(e.target.id)) {
+      updateClockPreview();
+    }
+  });
+
+  function switchPanel(navEl) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    navEl.classList.add('active');
+
+    const panelId = 'panel-' + navEl.dataset.panel;
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  function markDirty() {
+    dirty = true;
+    document.getElementById('save-bar').classList.add('visible');
+    document.getElementById('save-status').textContent = 'unsaved changes';
+  }
+
+
+  function saveSettings() {
+    settings.showSeconds = document.getElementById('seconds-toggle').checked;
+    settings.showDate    = document.getElementById('date-toggle').checked;
+    settings.dogeFloats  = document.getElementById('doge-toggle').checked;
+    settings.bootScreen  = document.getElementById('boot-toggle').checked;
+    settings.autoOpen    = document.getElementById('autoopen-toggle').checked;
+    settings.maintenance = document.getElementById('maintenance-toggle').checked;
+
+    localStorage.setItem('fb_settings', JSON.stringify(settings));
+
+    dirty = false;
+    document.getElementById('save-bar').classList.remove('visible');
+    document.getElementById('save-status').textContent = 'all changes saved';
+  }
+
+  function discardChanges() {
+    // reload from storage and reapply. easiest way to undo everything at once
+    settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem('fb_settings') || '{}') };
+    applyAll(settings);
+    buildColorGrid();
+    buildWallpaperGrid();
+    buildFontGrid();
+    dirty = false;
+    document.getElementById('save-bar').classList.remove('visible');
+    document.getElementById('save-status').textContent = 'changes discarded';
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all settings to defaults? this can\'t be undone')) return;
+    settings = { ...DEFAULTS };
+    localStorage.removeItem('fb_settings');
+    applyAll(settings);
+    buildColorGrid();
+    buildWallpaperGrid();
+    buildFontGrid();
+    markDirty(); // still needs a save to persist the reset
+    document.getElementById('save-status').textContent = 'reset to defaults — save to keep';
+  }
+
+  // ctrl+s to save. because muscle memory
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      if (dirty) saveSettings();
+    }
+  });
+
+  init();
+</script>
+
+</body>
+</html>
+
+// if you read this thoroughly up to now i will give you 
+// a nice secret about me
+// i want to kill myself so much right now
+// give me some money to fuel my gambling
