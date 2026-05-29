@@ -1,91 +1,137 @@
-let tabs = [];
-let activeTab = 0;
-
-/* TAB SYSTEM */
-function renderTabs() {
-    const el = document.getElementById("tabs");
-    el.innerHTML = "";
-
-    tabs.forEach((t, i) => {
-        const div = document.createElement("div");
-        div.className = "tab" + (i === activeTab ? " active" : "");
-        div.innerText = t.title || `Tab ${i + 1}`;
-
-        div.onclick = () => {
-            activeTab = i;
-            renderTabs();
-        };
-
-        div.oncontextmenu = (e) => {
-            e.preventDefault();
-            closeTab(i);
-        };
-
-        el.appendChild(div);
-    });
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "JetBrains Mono", monospace;
 }
 
-function newTab() {
-    tabs.push({
-        url: "",
-        title: "New Tab"
-    });
-
-    activeTab = tabs.length - 1;
-    renderTabs();
+body {
+    height: 100vh;
+    background: linear-gradient(to bottom right, #f6fbff, #eaf6ff);
+    display: flex;
+    flex-direction: column;
 }
 
-function closeTab(i) {
-    tabs.splice(i, 1);
-
-    if (tabs.length === 0) {
-        newTab();
-        return;
-    }
-
-    if (activeTab >= tabs.length) activeTab = tabs.length - 1;
-
-    renderTabs();
+.topbar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border-bottom: 1px solid #d7e9f5;
+    gap: 10px;
 }
 
-/* NAV BUTTONS */
-function back() {
-    history.back();
+.nav button,
+.tab-controls button {
+    border: none;
+    background: #eaf6ff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
-function forward() {
-    history.forward();
+.nav button:hover,
+.tab-controls button:hover {
+    background: #dff2ff;
 }
 
-function reload() {
-    location.reload();
+.tabs {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    overflow-x: auto;
 }
 
-/* SCRAMJET NAVIGATION */
-function go(url) {
-    // normalize
-    const isUrl = url.includes(".") && !url.includes(" ");
-
-    if (!isUrl) {
-        url = "https://www.google.com/search?q=" + encodeURIComponent(url);
-    } else if (!url.startsWith("http")) {
-        url = "https://" + url;
-    }
-
-    // route into Scramjet
-    window.location.href = "/scramjet/#" + encodeURIComponent(url);
+.tab {
+    padding: 6px 10px;
+    background: #eef7ff;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    user-select: none;
 }
 
-/* SEARCH BAR */
-document.getElementById("search").addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
+.tab.active {
+    background: #cfeaff;
+}
 
-    const value = e.target.value.trim();
-    if (!value) return;
+.center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-    go(value);
-});
+.logo {
+    font-family: "Handjet", cursive;
+    font-size: 5rem;
+    color: #8fd3ff;
+    margin-bottom: 25px;
+    text-shadow: 0 0 12px rgba(150,210,255,0.4);
+}
 
-/* INIT */
-newTab();
-renderTabs();
+#search {
+    width: 55%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #cfe3f3;
+    outline: none;
+    font-size: 14px;
+    background: white;
+}
+
+#search:focus {
+    border-color: #8fd3ff;
+    box-shadow: 0 0 12px rgba(140,200,255,0.35);
+}
+
+.engine-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.engine-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #7aa8c4;
+    user-select: none;
+}
+
+.engine-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #8fd3ff;
+    display: inline-block;
+    transition: background 0.3s;
+    box-shadow: 0 0 6px rgba(140,200,255,0.5);
+}
+
+#engine-select {
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid #cfe3f3;
+    background: white;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: #4a7a9a;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#engine-select:focus,
+#engine-select:hover {
+    border-color: #8fd3ff;
+    box-shadow: 0 0 8px rgba(140,200,255,0.3);
+}
+
+#engine-select option:disabled {
+    color: #bbb;
+}
