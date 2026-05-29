@@ -1,5 +1,9 @@
 'use strict';
 
+// this file became the dumping ground for every proxy experiment
+// surprisingly most of it still works
+
+
 const express     = require('express');
 const http        = require('http');
 const https       = require('https');
@@ -44,6 +48,7 @@ function startRammerhead() {
     }
   } catch (e) {
     console.warn('[Frostbyte] Rammerhead not installed — /rh/ will return 503.');
+    // leaving this warning because i forgot rammerhead existed for like 2 weeks
     console.warn('  Install with: npm install rammerhead');
   }
 }
@@ -69,6 +74,7 @@ const agentOptions = { keepAlive: true, maxSockets: 100, timeout: 60000 };
 const httpAgent    = new http.Agent(agentOptions);
 const httpsAgent   = new https.Agent(agentOptions);
 
+// tiny cache because some school wifi setups were unbearably slow 
 const cache    = new Map();
 const CACHE_TTL = 1000 * 30;
 
@@ -113,8 +119,8 @@ app.get('/api/proxy/engines', (req, res) => {
       { id: 'scramjet',   label: 'Scramjet',    available: true,    description: 'Fast service-worker proxy (default)' },
       { id: 'uv',         label: 'Ultraviolet', available: true,    description: 'Classic UV service-worker proxy' },
       { id: 'aero',       label: 'Aero',        available: true,    description: 'Aero service-worker proxy' },
-      { id: 'rammerhead', label: 'Rammerhead',  available: rhReady, description: 'Session-based proxy — best for stubborn sites' },
-      { id: 'fetch',      label: 'Fetch/Direct',available: true,    description: 'Server-side HTML rewriter (no SW needed)' },
+      { id: 'rammerhead', label: 'Rammerhead',  available: rhReady, description: 'Session-based proxy' },
+      { id: 'fetch',      label: 'Fetch/Direct',available: true,    description: 'Server-side HTML rewriter' },
     ]
   });
 });
