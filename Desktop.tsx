@@ -23,6 +23,7 @@ export type WindowDef = {
 // started with 1 wallpaper but it looked depressing so I decided on ts
 const WALLPAPERS = ['wallpaper-1', 'wallpaper-2', 'wallpaper-3'];
 
+// global z counter so every focused window ends up on top. hierarchy is simple when you're a number
 let zCounter = 10;
 
 export default function Desktop() {
@@ -33,7 +34,7 @@ export default function Desktop() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   useEffect(() => {
-    // auto-open browser because people are gonna be thinking thinking the site froze on boot
+    // auto-open browser on boot so it doesn't just sit there looking empty. i know the feeling
     openWindow('browser');
   }, []);
 
@@ -73,6 +74,7 @@ export default function Desktop() {
 
   function focusWindow(id: string) {
     zCounter += 1;
+    // bump z and un-minimize together so it doesn't flicker. two problems, one line, still not fixed
     setWindows(prev => prev.map(w => w.id === id ? { ...w, zIndex: zCounter, minimized: false } : w));
     setFocusedId(id);
   }
@@ -96,24 +98,24 @@ export default function Desktop() {
       onContextMenu={handleDesktopRightClick}
       onClick={() => setCtx(null)}
     >
-      {/* Animated noise overlay */}
+      {/* subtle noise layer so the gradient doesn't look too flat */}
       <div style={{
         position: 'absolute', inset: 0, opacity: 0.025, zIndex: 0,
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         pointerEvents: 'none',
       }} />
 
-      {/* Maintenance banner */}
+      {/* shown when maintenance mode is on in settings */}
       {maintenanceMode && (
         <div className="maintenance-banner">
           🚧 wow. such maintenance. very temporary. doge/frostbyte is fixing things. 🚧
         </div>
       )}
 
-      {/* Floating doge phrases on desktop */}
+      {/* floating doge phrases on desktop */}
       <DogeFloaters />
 
-      {/* Windows */}
+      {/* render all non-minimized windows */}
       {windows.map(win => {
         if (win.minimized) return null;
         const isFocused = win.id === focusedId;
@@ -146,7 +148,7 @@ export default function Desktop() {
         return null;
       })}
 
-      {/* Context menu */}
+      {/* right-click context menu — closes when you click anywhere else */}
       {ctx && (
         <ContextMenu
           x={ctx.x}
@@ -162,7 +164,7 @@ export default function Desktop() {
         />
       )}
 
-      {/* Taskbar */}
+      {/* taskbar at the bottom, always on top */}
       <Taskbar
         windows={windows}
         focusedId={focusedId}
