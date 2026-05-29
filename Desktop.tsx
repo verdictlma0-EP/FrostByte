@@ -20,6 +20,7 @@ export type WindowDef = {
   zIndex: number;
 };
 
+// started with 1 wallpaper but it looked depressing so I decided on ts
 const WALLPAPERS = ['wallpaper-1', 'wallpaper-2', 'wallpaper-3'];
 
 let zCounter = 10;
@@ -32,6 +33,7 @@ export default function Desktop() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   useEffect(() => {
+    // auto-open browser because people are gonna be thinking thinking the site froze on boot
     openWindow('browser');
   }, []);
 
@@ -45,6 +47,8 @@ export default function Desktop() {
       youtube: { title: 'YouTube', icon: '▶️', width: 860, height: 540 },
     };
 
+    // fake cascading effect because perfectly centered windows looked weird
+    // btw if you think this is ai because of the emojis, read penalty cv portfolio page
     const offset = windows.length * 30;
     const w = defaults[type].width!;
     const h = defaults[type].height!;
