@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Frostbyte OS</title>
-
-<link rel="stylesheet" href="index.css">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Handjet:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Handjet:wght@500;700&display=swap" rel="stylesheet"/>
 </head>
 
 <body>
 
 <div class="topbar">
-
   <div class="nav">
     <button onclick="back()">←</button>
     <button onclick="forward()">→</button>
@@ -24,43 +22,30 @@
   </div>
 
   <div class="right-tools">
-    <div class="clock" id="clock"></div>
-    <div class="snowflake">❄️</div>
+    <div id="clock"></div>
   </div>
-
 </div>
 
 <div class="center">
-
   <h1 class="logo">Frostbyte OS</h1>
-
-  <input id="search" placeholder="Search or enter URL..." autocomplete="off"/>
-
+  <input id="search" placeholder="Search or enter URL..." />
   <div class="side-tools">
-
-    <div class="engine-indicator">
-      <span class="engine-dot"></span>
-      <span id="engine-label">scramjet</span>
-    </div>
-
-    <select id="engine-select"></select>
-
-    <div class="settings-icon" onclick="openSettings()">⚙</div>
-
+    <div onclick="openSettings()">⚙</div>
     <button onclick="openPopout()">Popout</button>
-
-  </div>
-
-</div>
-
-<div class="discord-popup" id="discord">
-  <div class="discord-box">
-    <p>Join our Discord?</p>
-    <button onclick="joinDiscord()">Join</button>
-    <button onclick="closeDiscord()">Close</button>
   </div>
 </div>
 
-<script src="index.js"></script>
+<script src="config.js"></script>
+<script src="storage.js"></script>
+<script src="cloak.js"></script>
+<script src="panic.js"></script>
+<script src="ui.js"></script>
+
+<script>
+applyCloak(settings.cloakMode);
+initPanic(settings);
+initUI();
+</script>
+
 </body>
 </html>
