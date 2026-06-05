@@ -21,14 +21,12 @@ body {
     gap: 10px;
 }
 
-/* hover glow. at least the buttons feel alive even if i don't */
 button, select, .tab {
     transition: 0.2s ease;
 }
 
 button:hover, .tab:hover, select:hover {
     box-shadow: 0 0 12px rgba(140,200,255,0.6);
-    /* tiny lift. wish someone would do that for me */
     transform: translateY(-1px);
 }
 
@@ -57,14 +55,12 @@ button:hover, .tab:hover, select:hover {
     cursor: pointer;
 }
 
-/* RIGHT SIDE */
 .right-tools {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-/* keeping this small so it doesn't eat topbar space. */
 .clock {
     font-size: 12px;
     color: #5c8fb3;
@@ -94,7 +90,6 @@ button:hover, .tab:hover, select:hover {
     padding: 14px;
     border-radius: 14px;
     border: 1px solid #cfe3f3;
-    /* no outline. the glow looks better. i have standards even when everything else is falling apart apparently */
     outline: none;
 }
 
@@ -113,7 +108,6 @@ button:hover, .tab:hover, select:hover {
 
 .discord-popup {
     position: fixed;
-    /* dims the whole page. */
     inset: 0;
     display: none;
     justify-content: center;
@@ -126,4 +120,12 @@ button:hover, .tab:hover, select:hover {
     padding: 20px;
     border-radius: 12px;
     text-align: center;
+}
+
+.side-tools button {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #cfe3f3;
+    background: white;
+    cursor: pointer;
 }
