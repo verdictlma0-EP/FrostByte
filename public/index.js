@@ -1,12 +1,13 @@
 let tabs = [];
 let activeTab = null;
 
+let settings = JSON.parse(localStorage.getItem("fb_settings") || "{}");
+
 function newTab() {
   const id = Date.now().toString();
 
-  // each tab gets its own iframe. they deserve their own space. unlike me apparently
-  const frame = document.createElement('iframe');
-  frame.style.cssText = 'position:fixed;top:50px;left:0;width:100%;height:calc(100% - 50px);border:none;display:none';
+  const frame = document.createElement("iframe");
+  frame.style.cssText = "position:fixed;top:50px;left:0;width:100%;height:calc(100% - 50px);border:none;display:none";
 
   document.body.appendChild(frame);
 
@@ -21,7 +22,6 @@ function newTab() {
 
 function renderTabs() {
   const el = document.getElementById("tabs");
-  // rebuild every time. gave up trying to reuse code.
   el.innerHTML = `<button class="tab-add" onclick="newTab()">＋</button>`;
 
   tabs.forEach(t => {
@@ -46,7 +46,6 @@ function closeTab(id) {
   tabs = tabs.filter(x => x.id !== id);
 
   if (activeTab === id && tabs.length) {
-    // just fall back to the first tab. whatever
     activeTab = tabs[0].id;
     showTab(tabs[0]);
   }
@@ -73,7 +72,6 @@ function showTab(tab) {
 
 function back() {
   const t = tabs.find(x => x.id === activeTab);
-  // SecurityError from cross-origin. can't do anything about it. just pretend it didn't happen
   try { t.frame.contentWindow.history.back(); } catch {}
 }
 
@@ -89,7 +87,6 @@ function reload() {
 
 function updateClock() {
   const now = new Date();
-  // at least the clock works. something has to
   document.getElementById("clock").textContent =
     now.toLocaleTimeString() + " " + now.toLocaleDateString();
 }
@@ -111,8 +108,45 @@ function openSettings() {
   window.location.href = "/settings.html";
 }
 
+/* SAFE PANIC KEY (quick exit) */
+document.addEventListener("keydown", e => {
+  const key = settings.panicKey || "Escape";
+  if (e.key === key) {
+    window.location.href = settings.panicUrl || "https://www.wikipedia.org";
+  }
+});
+
+/* SAFE CLOAKING (visual only) */
+function applyCloak() {
+  const mode = settings.cloakMode || "frostbyte";
+
+  const map = {
+    frostbyte: { title: "Frostbyte OS", icon: "logo.png" },
+    study: { title: "Study Dashboard", icon: "https://www.google.com/favicon.ico" },
+    docs: { title: "Documents", icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico" }
+  };
+
+  const c = map[mode] || map.frostbyte;
+
+  document.title = c.title;
+
+  let link = document.querySelector("link[rel~='icon']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+  link.href = c.icon;
+}
+
+/* POP OUT WINDOW */
+function openPopout() {
+  window.open(window.location.href, "_blank", "width=1200,height=800");
+}
+
 window.onload = () => {
   newTab();
   updateClock();
   openDiscordPopup();
+  applyCloak();
 };
