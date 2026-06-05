@@ -1,0 +1,20 @@
+window.DEFAULTS = {
+  themeMode: "auto",
+  accent: "#60aff5",
+  wallpaper: 0,
+  font: "JetBrains Mono",
+  uiScale: 100,
+  animations: true,
+  animSpeed: 1,
+  dogeFloats: true,
+  clockFormat: "12",
+  showSeconds: false,
+  showDate: true,
+  bootScreen: true,
+  autoOpen: true,
+  maintenance: false,
+  panicKey: "Escape",
+  panicUrl: "https://www.wikipedia.org",
+  cloakMode: "frostbyte",
+  popout: true
+};
